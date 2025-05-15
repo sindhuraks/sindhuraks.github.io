@@ -1,14 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './terminal.css';
 import { MatrixRainingLetters } from "react-mdr";
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import { FaEnvelope, FaLinkedin, FaGithub } from 'react-icons/fa';
 
-const commands = {
-  ls: () => "Available commands: help, whoami, projects, contact, clear",
-  whoami: () => "Hello there! I'm Sindhura, a CS grad student at University of Florida.",
-  projects: () => "1. Portfolio Website",
-  contact: () => "Email: sindhu.ss10@gmail.com\n LinkedIn: https://www.linkedin.com/in/sindhura-k-subramanian/\nGitHub: https://github.com/sindhuraks",
-  clear: () => null
-};
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function Terminal() {
   const [history, setHistory] = useState([
@@ -17,7 +15,71 @@ export default function Terminal() {
   ]);
   const [input, setInput] = useState('');
   const terminalRef = useRef(null);
+  const [resumePages, setResumePages] = useState(null);
+  const [resumePageNumber, setResumePageNumber] = useState(1);
 
+  const commands = {
+    ls: () => (
+      <div style={{ padding: 12 }}>
+        Available commands: ls, whoami, projects, contact, resume, clear
+      </div>
+      ),
+    whoami: () => (
+      <div style={{ padding: 12 }}>
+        Hello there! I'm Sindhura, a CS grad student at University of Florida.
+      </div>
+      ),
+    projects: () => (
+      <div style={{ padding: 12 }}>
+        1. Portfolio
+      </div>
+      ),
+    contact: () => (
+      <>
+
+      <div style={{ padding: 12 }}>
+          <a href="mailto:sindhu.ss10@gmail.com">
+            <FaEnvelope style={{ marginRight: 8 }} />
+          </a>
+          <span style={{ color: '#00ff00', margin: '0 10px' , width: 1, height: 24}}>|</span>
+          <a href="https://www.linkedin.com/in/sindhura-k-subramanian/" target="_blank" rel="noopener noreferrer">
+            <FaLinkedin style={{ marginRight: 8 }} />
+          </a>
+          <span style={{ color: '#00ff00', margin: '0 10px', width: 1, height: 24 }}>|</span>
+          <a href="https://github.com/sindhuraks" target="_blank" rel="noopener noreferrer">
+            <FaGithub style={{ marginRight: 8 }} />
+          </a>    
+      </div>
+      </>
+    ),
+    clear: () => null,
+    resume: () => (
+        <div style={{ padding: 12 }}>
+          <p style={{ color: '#00ff00', marginBottom: 10 }}>
+            View or download my resume below:
+          </p>
+          <a
+            href="/Sindhura_Kumbakonam_Subramanian_Resume.pdf"
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ color: '#00ff00', textDecoration: 'underline', fontSize: '16px' }}
+          >
+            Open Resume
+          </a>
+          <span style={{ color: '#00ff00', margin: '0 10px' }}>|</span>
+          <a
+            href="/Sindhura_Kumbakonam_Subramanian_Resume.pdf"
+            download
+            style={{ color: '#00ff00', textDecoration: 'underline', fontSize: '16px' }}
+          >
+            Download Resume
+          </a>
+        </div>
+    )
+  };
+
+  const availableCommands = Object.keys(commands);
+  
   useEffect(() => {
     terminalRef.current?.scrollTo(0, terminalRef.current.scrollHeight);
   }, [history]);
@@ -34,6 +96,16 @@ export default function Terminal() {
         setHistory(h => [...h, `Command not found: ${cmd}`]);
       }
       setInput('');
+    }
+    else if (e.key === 'Tab') {
+      e.preventDefault();
+      const matches = availableCommands.filter(cmd => cmd.startsWith(input.trim()));
+      if (matches.length === 1) {
+        setInput(matches[0]);
+      }
+      else if (matches.length > 1) {
+        setHistory(h => [...h, matches.join('    ')]);
+      }
     }
   };
 
@@ -72,7 +144,7 @@ export default function Terminal() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleInput}
               autoFocus
-              style={{ background: 'transparent', color: '#00ff00', border: 'none', outline: 'none', fontSize: 18, fontFamily: 'Courier New, monospace' }}
+              style={{ background: 'transparent', color: '#00ff00', border: 'none', outline: 'none', fontSize: 16, fontFamily: 'Courier New, monospace', fontWeight: 'bold' }}
             />
           </div>
         </div>

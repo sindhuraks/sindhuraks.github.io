@@ -39,7 +39,10 @@
   overflow: auto;
   color: #00ff00;
   font-family: 'Courier New', monospace;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 2.0;
+  font-weight: bold;
+  scrollbar-width: none;
+  padding: 12;
 }
 
